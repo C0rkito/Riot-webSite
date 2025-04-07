@@ -1,0 +1,52 @@
+<artistitem>
+
+
+<header>
+<a href="#" if={!state.isFav} onclick={(e) => toggleFav(e,props.data)} > <img src="images/star.svg"> </a>
+				<a href="#" if={state.isFav} onclick={(e) => toggleFav(e,props.data)} > <img src="images/star_fill.svg"> </a>
+			</header>
+			
+			<body>
+				<a href="#/artist/{props.data.id}" class="liste-image">
+					<img if={!isGif(props.data.cover_image)} src={props.data.cover_image}>
+					<img if={isGif(props.data.cover_image)} src="images/inconnu.jpg">
+				</a>
+			</body>
+
+
+
+		<footer> 
+			<p> {props.data.title} </p>
+		</footer>
+
+<script>
+	
+export default {
+		async onBeforeMount(props, state) {
+			this.state = {
+				isFav : false
+			}
+			this.update({isFav: await this.props.isFav(props.data.id)});
+
+
+		},
+
+
+async toggleFav(e,result){
+			if(this.props.toggleFav){
+				await this.props.toggleFav(e,result)
+				if( this.props.isFav){
+					this.update({isFav: await this.props.isFav(this.props.data.id)});
+				}
+				
+			}
+		},
+
+		isGif(url) {
+      		return url.toLowerCase().endsWith(".gif");
+   		}
+	}
+
+</script>
+
+</artistitem>

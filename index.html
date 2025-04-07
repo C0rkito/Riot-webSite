@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fr">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+		<title>Music app</title>
+
+		<!-- les composants -->
+		<script src="app.riot" type="riot"></script>
+		<script src="login.riot" type="riot"></script>
+		<script src="register.riot" type="riot"></script>
+		<script src="release.riot" type="riot"></script>
+		<script src="master.riot" type="riot"></script>
+		<script src="artist.riot" type="riot"></script>
+		<script src="favoris.riot" type="riot"></script>
+		<script src="masteritem.riot" type="riot"></script>
+		<script src="releaseitem.riot" type="riot"></script>
+		<script src="artistitem.riot" type="riot"></script>
+
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+		<link rel="stylesheet" href="styles.css">
+
+
+		<script src="https://unpkg.com/riot@9.4.6/riot+compiler.min.js"></script>
+		<script src="https://unpkg.com/@riotjs/route@9.2.1/index.umd.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/riot-route@3.5.0/riot-route.min.js"></script>
+
+	</head>
+
+	
+	<body>
+
+
+		<app></app>
+		
+		<script type="module">
+
+			import makeDiscogService from "./discogs.js";
+			import makeFirebaseService from "./firebase.js";
+
+
+			
+			riot.register('router', route.Router);
+			riot.register('route', route.Route);
+
+				const userState = {
+				  user: JSON.parse(localStorage.getItem('user')) || null,
+
+				async setUser(user) {
+				    
+				    if (user) {
+				      localStorage.setItem('user', JSON.stringify(user));
+				    } 
+
+					this.user = user;
+				},
+				getUser() {
+					return this.user;
+				},
+				logout(){
+					
+					localStorage.removeItem('user');
+					this.setUser(null)
+				}
+			};
+
+
+			riot.compile().then(async () => {
+			  let discogsService = makeDiscogService();
+			  let firebaseService = makeFirebaseService();
+
+			  riot.install(function (component) {
+			    component.discogsService = discogsService;
+			    component.firebaseService = firebaseService;
+			    component.userState = userState;
+			  });
+
+		
+			  riot.mount('app');
+			});
+			
+			
+		</script>
+	</body>
+
+
+	
+</html>

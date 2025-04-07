@@ -1,0 +1,67 @@
+<release >
+
+<div if={state.data}>
+
+<h1>{state.data.title}</h1>
+<img src="{state.data.images[0].uri}" class="release-img">
+
+<p>{state.data.formats[0].name} - {state.data.released_formatted}</p>
+<h2> <span class="rating">{state.data.community.rating.average}</span>- ({state.data.community.rating.count}) votes </h2>
+
+
+<a href="#/master/{state.data.master_id}">Master</a>
+
+<h3>tracklist</h3>
+<div  class="tracklist">
+	<ul>
+		<li each={track in state.data.tracklist} >{track.position} - {track.title} - {track.duration}</li>
+
+	</ul>
+</div>
+
+<p>credits : {state.data.notes}</p>
+<div class="genre-liste">
+	<div class="genre" each={genre in state.data.genres}>
+		{genre}
+	</div>
+</div>
+
+
+
+
+
+
+</div>
+<script >
+	export default {
+		async onBeforeMount(props, state) {
+			this.state = {
+				data : null,
+			}
+
+			try{
+
+				const response = await this.discogsService.getItem('releases',props.id);
+
+				if (response) {
+					this.update({ data:await response});
+				}
+
+			} catch (error) {
+				console.error("Erreur : search", error);
+			}
+
+	
+
+		}
+
+	}
+
+</script>
+
+
+
+
+</release>
+
+

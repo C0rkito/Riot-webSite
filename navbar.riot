@@ -1,0 +1,131 @@
+<navbar>
+
+
+
+  
+  <nav>
+ 
+		<a  href="#/">home</a>
+		 <a  href="#/favoris"><img href="images/heart.svg">fav</a>
+		<img src="images/person.svg"> <p if={userState.getUser()}>{userState.getUser().email} - {props.favorisNombre}</p>
+		<a href="#/" if={userState.getUser()} onclick={logout}>logout</a>
+		<a if={!userState.getUser()} href="#/login">login </a>
+
+	<div>
+
+		<form onsubmit={ search }  method="POST"> 
+			<select id="filter-search" onchange={changeType}>
+				<option value="master">Master</option>
+				<option value="release">Release</option>
+				<option value="artist">Artistes</option>
+			</select>
+
+
+			<input type="search" name="search" oninput={ edit } />
+
+			<input id="Search-btn" type="submit"  name="submit" value="Search" onclick="window.location.href = '#/';" />
+
+
+			</form>
+	</div>
+
+
+
+</nav>
+  
+
+
+<script>
+
+
+export default {
+
+
+	async onBeforeMount() {
+		this.state = {
+		text: '',
+		type : 'master'
+		}
+	 this.search();
+
+	 
+
+
+	},
+
+
+	edit(e) {
+
+		this.update({text: e.target.value});
+	},
+
+	changeType(e){
+		this.update({type: e.target.value});
+	},
+
+
+	async search(e) {
+		if(e){
+			e.preventDefault();
+		}
+
+
+
+		try {
+			const result = await this.discogsService.doRequest(this.state.text,this.state.type);
+
+			if (result.results) {
+				this.props.onsearch(result,this.state.type);
+			}
+
+		} catch (error) {
+			console.error("Erreur : search", error);
+		}
+	},
+	async logout(){
+		this.userState.logout()
+		this.update();
+
+	}
+
+
+}
+
+		
+</script>
+
+
+
+
+
+<style>
+
+	nav {
+		height: 10vh;
+		z-index: 100;
+		top:0%;
+		left: 0%;
+		justify-content: space-around;
+		display:flex;
+		width: 100vw;
+		backdrop-filter: blur(10px) saturate(1.75) contrast(1.5) hue-rotate(70deg);
+		background-color: rgba(150,189,255,0.7);
+		position: fixed;
+		align-items: center;
+	}
+    
+	nav a {
+		font-size: xx-large;
+		color: white;
+		font-weight: bold;
+		text-decoration: none;
+	}
+
+
+	
+nav form{
+	display: flex;
+}
+</style>
+
+</navbar>

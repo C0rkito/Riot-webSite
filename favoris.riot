@@ -1,0 +1,94 @@
+<favoris>
+
+<div if={userState.getUser() && state.data} id="favoris">
+	
+
+<h2>{state.data.length} favoris</h2>
+
+<section class="liste">
+	<article each={result in state.data}>
+
+		
+			<masteritem if={result.type == 'master' } data = {result} toggleFav={toggleFav} isFav={isFav} ></masteritem>
+			<releaseitem if={result.type == 'release' } data = {result} toggleFav={toggleFav} isFav={isFav}></masteritem>
+
+			<artistitem if={result.type == 'artist' } data = {result} toggleFav={toggleFav} isFav={isFav}></masteritem>
+
+
+	</article>
+</section>
+
+
+
+
+</div>
+
+<script >
+	export default {
+
+
+	async onBeforeMount(props, state) {
+		this.state = {
+			data : null
+		}
+
+
+		if(this.userState.getUser()){
+			await this.getFav()
+			
+		}
+
+
+
+		else{
+			route.router.push('#/login')
+		}
+	},
+
+
+
+	async getFav(){
+		const fav = await this.firebaseService.getFavorites(this.userState.getUser().uid)
+		
+
+		if(fav){
+		    this.update({data :fav})
+		   
+		}
+			
+	},
+
+async toggleFav(e,result){
+		e.preventDefault();
+		
+		
+			
+		if(this.userState.getUser()){
+			await this.firebaseService.removeFavorites(this.userState.getUser().uid,result)
+
+			this.update({data : null})
+			this.update({data : await this.firebaseService.getFavorites(this.userState.getUser().uid)})
+			
+
+		}
+
+
+		else{
+			route.router.push('#/login')
+		}
+		
+		
+	},
+	async isFav(Resultid){
+		if(this.state.data){
+			return this.state.data.some(fav => fav.id === Resultid);
+		}
+	}
+
+
+
+	}
+</script>
+
+
+</favoris>

@@ -1,0 +1,64 @@
+<masteritem>
+
+
+<header>
+			<a href="#/master/{props.data.id}">{props.data.title}</a>
+				<a href="#" if={!state.isFav} onclick={(e) => toggleFav(e,props.data)} > <img  src="images/star.svg"> </a>
+				<a href="#" if={state.isFav} onclick={(e) => toggleFav(e,props.data)} > <img  src="images/star_fill.svg"> </a>
+				
+			</header>
+			
+			<body>
+				<a href="#/master/{props.data.id}" class="liste-image">
+					<img src={props.data.cover_image}>
+				</a>
+			</body>
+
+
+
+		<footer> 
+
+			<a href="#/master/{props.data.master_id}"> Master</a>
+			<div if={props.data.community} class="community">
+				<div id="check">
+					{props.data.community.want}
+					<img class="community-icon" src="images/check.svg">
+				</div>
+
+				<div id="heart">
+					{props.data.community.have}
+					<img class="community-icon" src="images/heart.svg">
+				</div>
+
+			</div>
+		</footer>
+
+<script>
+	
+	export default {
+		async onBeforeMount(props, state) {
+			this.state = {
+				isFav : false
+			}
+			this.update({isFav: await this.props.isFav(props.data.id)});
+
+
+		},
+
+
+async toggleFav(e,result){
+			if(this.props.toggleFav){
+				await this.props.toggleFav(e,result)
+				if( this.props.isFav){
+					this.update({isFav: await this.props.isFav(this.props.data.id)});
+				}
+				
+			}
+		},
+
+
+	}
+
+</script>
+
+</masteritem>

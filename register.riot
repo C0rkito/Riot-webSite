@@ -1,0 +1,141 @@
+<register>
+
+
+<h1> Register </h1>
+
+<div id="div-form">
+    <form onsubmit={ create } method="POST">
+        <label> Email </label>
+        <input type="email" name="email" placeholder="email" required  oninput={ editEmail } />
+        
+        <label> Password </label>
+        <input type="password" name="password" placeholder="password" required oninput={ editPassword } />
+        
+        <button type="submit" >Register</button>
+    </form>
+    
+    <a href="#/login"> login</a>
+</div>
+
+
+
+<script>
+
+
+export default {
+
+
+	onBeforeMount(props, state) {
+		this.state = {
+			email : '',
+			password : ''
+		}
+
+	},
+
+
+	editEmail(e){
+		this.update({email: e.target.value});
+	},
+
+	editPassword(e){
+		this.update({password: e.target.value});
+	},
+
+	async create(e){
+		e.preventDefault();
+
+		user = await this.firebaseService.createAccount(this.state.email,this.state.password)
+		await this.userState.setUser(user)
+		route.router.push('#/')
+		 
+	}
+}
+		
+</script>
+
+
+
+
+
+<style>
+
+h1{
+	text-align: center;
+}
+
+#div-form {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    font-size: 14px;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+input {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+input:focus {
+    outline: none;
+    border-color: #0056b3;
+}
+
+button {
+    padding: 10px;
+    background-color: #0056b3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #004080;
+}
+
+a {
+    font-size: 14px;
+    text-align: center;
+    display: block;
+    margin-top: 15px;
+    color: #0056b3;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+
+</style>
+
+
+
+
+
+
+
+
+
+</register>

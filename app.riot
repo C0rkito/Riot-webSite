@@ -1,0 +1,302 @@
+<app>
+<router base={base}>
+
+
+  <nav>
+ 
+		<a  href="#/" onclick={refresh}>home</a>
+		<a  href="#/favoris"><img href="images/heart.svg">fav</a>
+		<p if={userState.getUser()}>{userState.getUser().email} - {state.favoris?.length || 0}</p>
+		<a href="#/" if={userState.getUser()} onclick={logout}>logout</a>
+		<a if={!userState.getUser()} href="#/login">login </a>
+
+	<div>
+
+		<form onsubmit={ search }  method="GET"> 
+			<select id="filter-search" onchange={changeType}>
+				<option value="master">Master</option>
+				<option value="release">Release</option>
+				<option value="artist">Artistes</option>
+			</select>
+
+
+			<input type="search" name="search" oninput={ edit } />
+
+			<input id="Search-btn" type="submit"  name="submit" value="Search" onclick="window.location.href = '#/';" />
+
+
+			</form>
+	</div>
+
+
+
+</nav>
+  
+
+
+<main>
+<route path="(#)?">
+
+
+
+<h5 class="result" if={state.data  && state.data.pagination.pages && state.data.pagination.pages < 2}>
+  {state.data.results.length} résultats pour {state.text}
+</h5>
+
+<h5 class="result" if={state.data  && state.data.pagination.pages && state.data.pagination.pages > 2 && state.data.pagination.pages < 200}>
+  {state.data.pagination.pages * state.data.pagination.per_page} résultats pour {state.text}
+</h5>
+
+<h5 class="result" if={state.data  && state.data.pagination.pages && state.data.pagination.pages > 199}>
+  plus de {state.data.pagination.pages * state.data.pagination.per_page} résultats pour {state.text}
+</h5>
+
+
+<div if ={state.data  && state.data.pagination} class="pagination">
+	<div class="pagination-fleche"> 
+
+		<a if={state.data  && state.data.pagination.urls.prev} href="#" onclick={previousPage} > < </a> 
+		<a if={state.data && state.data.pagination.urls.next} href="#" onclick={nextPage}> > </a>  
+
+	</div>
+
+
+
+	<div class=num-pages>
+		<a if={state.data.pagination.urls.prev} href="#" onclick={firstPage} >1</a>
+		<p>{state.page}</p>
+		<a if={state.data.pagination.urls.next} href="#" onclick={lastPage}>{state.data.pagination.pages}</a>
+	</div>
+
+</div>
+
+
+	<section if={state.data} class="liste">
+		<article each={result in state.data.results}>
+
+			<masteritem if={result.type == 'master'} data = {result} toggleFav={toggleFav} isFav={isFav} ></masteritem>
+
+			<releaseitem if={result.type == 'release'} data = {result} toggleFav={toggleFav} isFav={isFav}></releaseitem>
+
+			<artistitem if={result.type == 'artist' } data = {result} toggleFav={toggleFav} isFav={isFav}></artistitem>
+
+
+		</article>
+	
+</section>
+
+
+	
+		<a href="credits.txt" target="_blank">crédits</a>
+</route>
+
+
+
+<route path="#/release/:id">
+	<release id="{route.params.id}"></release>
+</route>
+
+<route path="#/master/:id">
+	<master id="{route.params.id}"></master>
+</route>
+
+<route path="#/artist/:id">
+	<artist id="{route.params.id}"></artist>
+</route>
+
+<route path="#/favoris">
+	<favoris></favoris>
+</route>
+
+<route path="#/login">
+	<login></login>
+</route>
+
+<route path="#/register">
+	<register></register>
+</route>
+
+
+
+
+</router>
+
+
+
+
+
+<script>
+	
+	export default {
+
+		base : 'http://localhost:5500/ecole/web/',
+		
+		async onBeforeMount(props, state) {
+			this.state = {
+				text: '',
+				type : 'master',
+				page: 1,
+				data : null,
+				favoris: null,
+			}
+		
+			await this.search();
+
+				if(this.userState.getUser() ){
+				this.update({favoris : await this.firebaseService.getFavorites(this.userState.getUser().uid)})
+			}
+
+
+		},
+
+		async refresh(){
+			
+			
+			this.update({data:null});
+			this.update({favoris:null});
+			if(this.userState.getUser() ){
+				this.update({favoris : await this.firebaseService.getFavorites(this.userState.getUser().uid)})
+			}
+			await this.search();
+		},
+
+
+    updateResults(data,type) {
+
+      this.update({ data : data,type : type,page:1 });
+
+   
+    },
+
+
+    edit(e) {
+
+		this.update({text: e.target.value});
+	},
+
+	changeType(e){
+		this.update({type: e.target.value});
+	},
+
+
+	async search(e) {
+		if(e){
+			e.preventDefault();
+		}
+
+
+		try {
+			const result = await this.discogsService.doRequest(this.state.text,this.state.type);
+
+			if (result.results) {
+				this.updateResults(result,this.state.type);
+
+			}
+
+		} catch (error) {
+			console.error("Erreur : search", error);
+		}
+	},
+
+	async logout(){
+		this.update();
+		this.update({favoris:null});
+		this.userState.logout()
+		
+
+	},
+
+	async toggleFav(e,result){
+		e.preventDefault();
+		
+		
+		if(this.userState.getUser()){
+
+
+	
+			if(await this.isFav(result.id) === false ){
+
+				await this.firebaseService.addFavorites(this.userState.getUser().uid,result)
+		
+			}
+			if(await this.isFav(result.id) === true ){
+				await this.firebaseService.removeFavorites(this.userState.getUser().uid,result)
+			}
+
+			this.update({favoris : await this.firebaseService.getFavorites(this.userState.getUser().uid)})
+
+			
+
+
+			
+		}
+
+
+		else{
+			route.router.push('#/login')
+		}
+		
+		
+	},
+
+	async isFav(Resultid){
+		if(this.state.favoris){
+
+			return this.state.favoris.some(fav => fav.id === Resultid);
+		}
+		else{
+			return false;
+		}
+		
+
+	},
+
+	async nextPage(){
+
+		if(this.state.data.pagination.urls.next){
+			const response = await fetch(this.state.data.pagination.urls.next);
+			this.update({data : null})
+			this.update({ data:await response.json(),page: ++this.state.page});
+		}
+		
+		
+	},
+
+	async previousPage(){
+		if(this.state.data.pagination.urls.prev){
+			const response = await fetch(this.state.data.pagination.urls.prev);
+			this.update({data : null})
+			this.update({ data:await response.json(),page: --this.state.page});
+		}
+	},
+
+	async firstPage(){
+		if(this.state.data.pagination.urls.first){
+			const response = await fetch(this.state.data.pagination.urls.first);
+			this.update({data : null})
+			this.update({ data:await response.json(),page:1 });
+		}
+		
+	},
+
+	async lastPage(){
+		if(this.state.data.pagination.urls.last){
+			const response = await fetch(this.state.data.pagination.urls.last);
+			const last = this.state.data.pagination.pages
+			this.update({data : null})
+			this.update({ data:await response.json(),page:last});
+		}
+		
+	}
+		
+
+				
+	};
+
+</script>
+
+</main>
+
+</app>
+
+

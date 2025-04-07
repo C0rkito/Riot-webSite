@@ -1,0 +1,42 @@
+<artist>
+
+<div if={state.data}>
+
+<h1>{state.data.name}</h1>
+
+<img if={state.data.images} src="{state.data.images[0].uri}">
+
+
+<h3>Biographie</h3>
+<p>{state.data.profile}</p>
+
+<script >
+	export default {
+		async onBeforeMount(props, state) {
+			this.state = {
+				data : null,
+			}
+
+			try{
+
+				const response = await this.discogsService.getItem('artists',props.id);
+
+				if (response) {
+					this.update({ data:await response});
+				}
+
+			} catch (error) {
+				console.error("Erreur : search", error);
+			}
+
+		}
+
+	}
+
+
+</script>
+
+</div>
+
+
+</artist>

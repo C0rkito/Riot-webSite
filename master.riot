@@ -1,0 +1,86 @@
+<master>
+
+
+
+<div if={state.data}>
+
+<h1>{state.data.title}</h1>
+<h2>{state.data.year}</h2>
+
+<img src="{state.data.images[0].uri}" class="release-img">
+<a href="#/release/{state.data.most_recent_release}">most recent release</a>
+
+<div  class="tracklist">
+	<ul>
+		<li each={track in state.data.tracklist} >{track.position} - {track.title} - {track.duration}</li>
+
+	</ul>
+</div>
+
+
+<h3>artists</h3>
+<div class="artist-liste">
+		<ul>
+	<li class="artist" each={artist in state.data.artists}>
+		<a href="#/artist/{artist.id}">{artist.name}</a>
+	</li>
+		<ul>
+</div>
+
+<div class="genre-liste">
+	<ul>
+	<li class="genre" each={genre in state.data.genres}>
+		{genre}
+	</li>
+	<ul>
+</div>
+
+
+
+
+
+
+</div>
+<script >
+	export default {
+		async onBeforeMount(props, state) {
+			this.state = {
+				data : null,
+			}
+
+			try{
+
+				const response = await this.discogsService.getItem('masters',props.id);
+
+				if (response) {
+					this.update({ data:await response});
+				}
+
+			} catch (error) {
+				console.error("Erreur : search", error);
+			}
+
+
+
+
+
+	
+
+		}
+
+	}
+
+</script>
+
+<style>
+
+img{
+	width: 30%;
+}
+
+</style>
+
+
+</master>
+
+
